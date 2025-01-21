@@ -1,0 +1,92 @@
+#script that reads a file and formatted to pdf report
+import pandas as pd
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.platypus import Table, TableStyle
+
+# Function to read data from a file
+def read_data(file_path):
+    try:
+        data = pd.read_csv('C:/Users/lenis/Downloads/data.csv')
+        return data
+    except Exception as e:
+        print(f"Error reading file: {e}")
+        return None
+
+# Function to analyze data
+def analyze_data(data):
+    analysis = {
+        "Total Rows": len(data),
+        "Total Columns": len(data.columns),
+        "Column Summary": data.describe(include='all').to_dict(),
+    }
+    return analysis
+
+# Function to generate a PDF report
+def generate_pdf_report(data, analysis, output_file):
+    try:
+        pdf = canvas.Canvas(output_file, pagesize=letter)
+        pdf.setTitle("Automated Report")
+
+        # Title
+        pdf.setFont("Helvetica-Bold", 16)
+        pdf.drawString(200, 750, "Automated Data Analysis Report")
+
+        # Summary
+        pdf.setFont("Helvetica", 12)
+        pdf.drawString(50, 720, f"Total Rows: {analysis['Total Rows']}")
+        pdf.drawString(50, 700, f"Total Columns: {analysis['Total Columns']}")
+
+        # Column summary table
+        pdf.drawString(50, 680, "Column Summary:")
+        table_data = [["Column", "Mean", "Min", "Max"]]
+        for column, stats in analysis["Column Summary"].items():
+            if isinstance(stats, dict) and "mean" in stats:
+                table_data.append([
+                    column,
+                    f"{stats.get('mean', 'N/A'):.2f}" if stats.get('mean') else "N/A",
+                    stats.get('min', 'N/A'),
+                    stats.get('max', 'N/A'),
+                ])
+
+        table = Table(table_data, colWidths=[150, 100, 100, 100])
+        table.setStyle(
+            TableStyle([
+                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ])
+        )
+
+        # Draw table
+        table.wrapOn(pdf, 50, 500)
+        table.drawOn(pdf, 50, 500)
+
+        # Save PDF
+        pdf.save()
+        print(f"Report saved to {output_file}")
+    except Exception as e:
+        print(f"Error generating PDF: {e}")
+
+# Main script
+def main():
+    input_file = "data.csv"  # Replace with your file path
+    output_file = "report.pdf"
+
+    # Read data
+    data = read_data(input_file)
+    if data is None:
+        return
+
+    # Analyze data
+    analysis = analyze_data(data)
+
+    # Generate PDF report
+    generate_pdf_report(data, analysis, output_file)
+
+if __name__ == "__main__":
+    main()
