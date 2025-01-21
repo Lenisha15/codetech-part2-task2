@@ -1,4 +1,15 @@
+Name: LENISHA ROSHAL DSOUZA
+
+Company: CODTECH IT SOLUTIONS
+
+ID: CT08DGD
+
+Domain: Python Programming
+
+Duration: Dec 20,2024 to Jan 20,2025
+
 Overview: Automated Report Generation Script
+
 This Python script automates the process of reading data from a CSV file, analyzing it, and generating a formatted PDF report. It is designed to streamline the workflow of data reporting and can be customized for various datasets.
 
 Features
